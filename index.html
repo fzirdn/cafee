@@ -1,0 +1,170 @@
+<html>
+    <head>
+        <title>Cafe Employement</title>
+        <link rel="stylesheet" href="cssFile.css">
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+	    <script>
+		function onSignIn(googleUser) {
+        // Useful data for your client-side scripts:
+        var profile = googleUser.getBasicProfile();
+        console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+        console.log('Full Name: ' + profile.getName());
+        console.log('Given Name: ' + profile.getGivenName());
+        console.log('Family Name: ' + profile.getFamilyName());
+        console.log("Image URL: " + profile.getImageUrl());
+        console.log("Email: " + profile.getEmail());
+
+        // The ID token you need to pass to your backend:
+        var id_token = googleUser.getAuthResponse().id_token;
+        postAJAX('/server/sign-in', {id_token: id_token})
+        .then(function(user) {
+            // The user is now signed in on the server too
+            // and the user should now have a session cookie
+            // for the whole site. 
+            document.location.href = '/main/' + user.username
+        })
+        
+        
+      };
+	</script>
+	<meta name="google-signin-client_id" content="72589979923-u1kor0mr8v69ie57ru9o77f3aj84fvnv.apps.googleusercontent.com">
+    </head>
+
+    <body>
+        <div id="login-box">
+            <div class="left">
+                <h1>Login Page</h1>
+
+                <input type="text" id="email" name="email" placeholder="E-mail"/>
+                <input type="password" id="password" name="password" placeholder="Password"/>
+
+                <h5></h5>
+
+                <input type="submit" id="Login" name="login_submit" value="Log In" />
+                <h5>Don't have an account?<a href="signup.html">Sign Up</a> now!!</h5>
+            </div>
+
+            <div class="right"> 
+                <button class="social-signin google" id="loginGoogle">Log in With Google</button>
+                <div class="g-signin2" data-onsuccess="onSignIn"></div>
+            </div>
+
+            <div class="or">OR</div>
+        </div>
+    </body>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.4/firebase-app.js";
+        import { GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/9.6.4/firebase-auth.js";
+        import { getDatabase, update, ref } from "https://www.gstatic.com/firebasejs/9.6.4/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signInWithRedirect, getRedirectResult} from "https://www.gstatic.com/firebasejs/9.6.4/firebase-auth.js";
+
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyCg2FYM-tsaTSX4_WDqbwoEgeFCpQg_1cQ",
+          authDomain: "cafewebsite-cf0af.firebaseapp.com",
+          databaseURL: "https://cafewebsite-cf0af-default-rtdb.firebaseio.com",
+          projectId: "cafewebsite-cf0af",
+          storageBucket: "cafewebsite-cf0af.appspot.com",
+          messagingSenderId: "537678655355",
+          appId: "1:537678655355:web:87f311a8cb185ed7bc97de"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const auth = getAuth();
+        const provider = new GoogleAuthProvider(app);
+
+        Login.addEventListener('click',(e) => {
+
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+            
+            signInWithEmailAndPassword(auth, email, password)
+               .then((userCredential) => {
+                    // Signed in 
+                    const user = userCredential.user;
+                    const dt = new Date();
+
+                    update(ref(database, 'user/' + user.uid), {
+                       last_login: dt,
+                   })
+
+                   alert('User Loged in!');
+                   window.location.href = "main.html";
+                })
+                .catch((error) => {
+                     const errorCode = error.code;
+                     const errorMessage = error.message;
+
+                     alert(errorMessage);
+                });
+
+               
+        });
+
+        /*const auth = getAuth();
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in, see docs for a list of available properties
+                // https://firebase.google.com/docs/reference/js/firebase.User
+                const uid = user.uid;
+            } 
+            else {
+
+            }
+         });*/
+
+         loginGoogle.addEventListener('click',(e) => {
+            signInWithRedirect(auth, provider);
+
+            getRedirectResult(auth)
+               .then((result) => {
+            
+            
+             // This give}s you a Google Access Token. You can use it to access Google APIs.
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential.accessToken;
+            
+            
+            /*if(!result){
+                firebase.auth().signInWithRedirect(provider);
+            }
+            else {
+                windows.location.replace("/main.html");
+            }*/
+
+            // The signed-in user info.
+            result =  window.location.href = "main.html? idtoken=" + token;
+            
+            }).catch((error) => {
+            // Handle Errors here.
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // The email of the user's account used.
+            const email = error.email;
+            // The AuthCredential type that was used.
+            const credential = GoogleAuthProvider.credentialFromError(error);
+    
+            });
+            
+            /*firebase.auth().getRedirectResult().then(function (result) {
+                if(!user) {
+                    firebase.auth().signInWithRedirect(provider);
+                }else {
+                    $state.go('main.html');
+                }
+            }).catch(function (error) {
+                console.log(error)
+            })*/
+        })
+    
+    
+    </script>
+
+</html>
