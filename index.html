@@ -2,32 +2,7 @@
     <head>
         <title>Cafe Employement</title>
         <link rel="stylesheet" href="cssFile.css">
-        <script src="https://apis.google.com/js/platform.js" async defer></script>
-	    <script>
-		function onSignIn(googleUser) {
-        // Useful data for your client-side scripts:
-        var profile = googleUser.getBasicProfile();
-        console.log("ID: " + profile.getId()); // Don't send this directly to your server!
-        console.log('Full Name: ' + profile.getName());
-        console.log('Given Name: ' + profile.getGivenName());
-        console.log('Family Name: ' + profile.getFamilyName());
-        console.log("Image URL: " + profile.getImageUrl());
-        console.log("Email: " + profile.getEmail());
-
-        // The ID token you need to pass to your backend:
-        var id_token = googleUser.getAuthResponse().id_token;
-        postAJAX('/server/sign-in', {id_token: id_token})
-        .then(function(user) {
-            // The user is now signed in on the server too
-            // and the user should now have a session cookie
-            // for the whole site. 
-            document.location.href = '/main/' + user.username
-        })
-        
-        
-      };
-	</script>
-	<meta name="google-signin-client_id" content="72589979923-u1kor0mr8v69ie57ru9o77f3aj84fvnv.apps.googleusercontent.com">
+    
     </head>
 
     <body>
@@ -46,7 +21,6 @@
 
             <div class="right"> 
                 <button class="social-signin google" id="loginGoogle">Log in With Google</button>
-                <div class="g-signin2" data-onsuccess="onSignIn"></div>
             </div>
 
             <div class="or">OR</div>
@@ -125,45 +99,23 @@
 
             getRedirectResult(auth)
                .then((result) => {
-            
-            
              // This give}s you a Google Access Token. You can use it to access Google APIs.
             const credential = GoogleAuthProvider.credentialFromResult(result);
             const token = credential.accessToken;
-            
-            
-            /*if(!result){
-                firebase.auth().signInWithRedirect(provider);
-            }
-            else {
-                windows.location.replace("/main.html");
-            }*/
-
             // The signed-in user info.
-            result =  window.location.href = "main.html? idtoken=" + token;
-            
-            }).catch((error) => {
+            const user = result.user;
+            // ...
+             }).catch((error) => {
             // Handle Errors here.
             const errorCode = error.code;
             const errorMessage = error.message;
             // The email of the user's account used.
             const email = error.email;
             // The AuthCredential type that was used.
-            const credential = GoogleAuthProvider.credentialFromError(error);
-    
-            });
-            
-            /*firebase.auth().getRedirectResult().then(function (result) {
-                if(!user) {
-                    firebase.auth().signInWithRedirect(provider);
-                }else {
-                    $state.go('main.html');
-                }
-            }).catch(function (error) {
-                console.log(error)
-            })*/
-        })
-    
+           const credential = GoogleAuthProvider.credentialFromError(error);
+           // ...
+           });
+         })
     
     </script>
 
